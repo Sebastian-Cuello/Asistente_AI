@@ -1,11 +1,17 @@
-# Para linux instalar 
-# libespeak1
-# Para Python 3 Pip pyttsx3 y speech_recognition 
+# For linux install
+# libespeak1, pyaudio
+
+# For Python 3 
+# Pip pyttsx3, speech_recognition, wikipedia, psutil, pyjokes
 
 import pyttsx3
 import datetime
 import wikipedia
 import smtplib
+import psutil
+import pyjokes
+import os
+import webbrowser as wb
 import speech_recognition as sr
 
 engine = pyttsx3.init()
@@ -45,7 +51,6 @@ def wishme():
         speak("Good Evening Sir")
     else:
         speak("Good Night Sir")
-    speak ("Jarvis at your services. Please tell me how can i help you today")
 
 #Function to recognize the voice / We can take commands
 def takeCommand():
@@ -72,13 +77,23 @@ def sendEmail(to, content):
     server.starttls()
     server.login('username@gmail.com','password')
     server.sendmail('send email')
+
+#function that gives us the cpu and battery usage
+def cpu():
+    usage = str(psutil.cpu_percent())
+    speak('CPU is at'+usage)
+    battery = psutil.sensors_battery()
+    speak('Battery is at')
+    speak(battery.percent)
     
+def joke():
+    speak(pyjokes.get_joke())
 
 #Main program
 if __name__ == "__main__":
     wishme()
-    while True:
-        query = takeCommand().lower()
+    query = takeCommand().lower()
+    while query != 'exit':
         if 'time' in query:
             time_()
         elif 'date' in query:
@@ -104,4 +119,43 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 speak("Unable to send Email.")
-
+        elif 'search youtube' in query:
+            speak('What should i search?')
+            search_Term = takeCommand().lower()
+            speak('Here We go to YOUTUBE!')
+            wb.open('https://www.youtube.com/results?search_query='+search_Term)
+        elif 'search google' in query:
+            speak('What should i search?')
+            search_Term = takeCommand().lower()
+            speak('Searching...')
+            wb.open('https://www.google.com/search?q='+search_Term)
+        elif 'cpu' in query:
+            cpu()
+        elif 'joke' in query:
+            joke()
+        elif 'word' in query:
+            speak("Open MS word.....")
+            ms_word = 'where is the .EXE or the same in linux'
+            os.startfile(ms_word)
+        elif 'write a note' in query:
+            speak("What should i write. Sir")
+            notes = takeCommand()
+            file = open('notes.txt'.'w')
+            speak("Sir should i include Date and Time")
+            ans = takeCommand
+            if 'yes' in ans:
+                strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                file.write(strTime)
+                file.write(':-')
+                file.write(notes)
+                speak("Done taking notes, sir")
+            else
+                file.write(notes)
+        elif 'show note' in query:
+            speak('showing notes')
+            file = open('notes.txt'.'r')
+            print(file.read())
+            speak(file.read())
+        
+        query = takeCommand().lower()
+        
