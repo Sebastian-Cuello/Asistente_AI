@@ -1,3 +1,5 @@
+# Sebastian Cuello
+
 # For linux install
 # libespeak1, pyaudio
 
