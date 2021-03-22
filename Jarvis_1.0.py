@@ -2,7 +2,8 @@
 # libespeak1, pyaudio
 
 # For Python 3 
-# Pip pyttsx3, speech_recognition, wikipedia, psutil, pyjokes
+# Pip install pyttsx3, speech_recognition, wikipedia, psutil, pyjokes, pyautogui.
+# Pip pyinstaller is to create an app. command (pyinstaller --onefile "name of app")
 
 import pyttsx3
 import datetime
@@ -11,10 +12,18 @@ import smtplib
 import psutil
 import pyjokes
 import os
+import pyautogui
 import webbrowser as wb
 import speech_recognition as sr
+import random
+import json
+import requests
+import wolframalpha
+import time
+from urllib.request import urlopen
 
 engine = pyttsx3.init()
+wolframalpha_app_id = '88H2Q8-WHVKA5L4Q6'
 
 # Function to speak 
 def speak(audio):
@@ -86,8 +95,14 @@ def cpu():
     speak('Battery is at')
     speak(battery.percent)
     
+#function to gives us jokes    
 def joke():
     speak(pyjokes.get_joke())
+
+#function to take screenshots
+def screenshot():
+    img = pyautogui.screenshot()
+    img.save('/home/sebastian_cuello/Desktop')
 
 #Main program
 if __name__ == "__main__":
@@ -140,7 +155,7 @@ if __name__ == "__main__":
         elif 'write a note' in query:
             speak("What should i write. Sir")
             notes = takeCommand()
-            file = open('notes.txt'.'w')
+            file = open('notes.txt','w')
             speak("Sir should i include Date and Time")
             ans = takeCommand
             if 'yes' in ans:
@@ -149,13 +164,88 @@ if __name__ == "__main__":
                 file.write(':-')
                 file.write(notes)
                 speak("Done taking notes, sir")
-            else
+            else:
                 file.write(notes)
         elif 'show note' in query:
             speak('showing notes')
-            file = open('notes.txt'.'r')
+            file = open('notes.txt','r')
             print(file.read())
             speak(file.read())
-        
+        elif 'screenshot' in query:
+            #doesn't work on linux
+            screenshot()
+        elif 'play music' in query:
+            #doesn't work in linux for the moment
+            songs_dir = "directory PATH"
+            music = os.listdir(songs_dir)
+            speak('what should i play?')
+            speak('select a number.....')
+            ans = takeCommand().lower()
+            while('number' not in ans and ans != 'random' and ans != 'you choose'):
+                speak('I could not understand you, Please try again')
+                ans = takeCommand().lower()
+            if 'number' in ans:
+                num = int(ans.replace('number',''))
+            elif 'random' in ans:
+                no = random.randint(1,100)          
+            os.startfile(os.path.join(songs_dir,music[num]))
+        elif 'remember that' in query:
+            speak("What sould i remember")
+            memory = takeCommand()
+            speak("You asked me remember that" + memory)
+            remember = open('memory.txt','w')
+            remember.write(memory)
+            remember.close()
+        elif 'do you remember anything' in query:
+            remember = open('memory.txt','r')
+            speak("You asked me to remember that " + remember.read())
+        elif 'news' in query:
+            try:
+                jsonObj = urlopen('https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=98bd17fbb7b64000b588220821a9c3ef') #NewsAPi is the web that you can get the news with the APIKEY
+                data = json.load(jsonObj)
+                i = 1
+                speak('Here are some top headlines from the Tech Industry')
+                print('=============TOP HEADLINES=============='+'\n')
+                for item in data['articles']:
+                    print(str(i)+'. '+ item['title'] + '\n')
+                    print(item['description'] + '\n')
+                    speak(item['title'])
+                    i +=1
+            except Exception as e:
+                print(str(e))
+        elif 'where is ' in query:
+            query = query.replace("where is","")
+            location = query
+            speak("You ask to locate"+location)
+            wb.open_new_tab("https://www.google.com/maps/place/"+location)
+        elif 'calculate' in query:
+            client = wolframalpha.Client(wolframalpha_app_id)
+            indx = query.lower().split().index('calculate')
+            query = query.split()[indx + 1:]
+            res = client.query(''.join(query))
+            answer = next(res.results).text
+            print('The Answer is : '+ answer)
+            speak('The Answer is '+ answer)
+        elif 'what is' in query or 'who is' in query:
+            #use the same API wolframalpha
+            client = wolframalpha.Client(wolframalpha_app_id)
+            res = client.query(query)
+            try:
+                print(next(res.results).text)
+                speak(next(res.results).text)
+            except StopIteration:
+                print("No Results")
+        elif 'stop listening' in query:
+            speak('For how many seconds')     
+            ans = int(takeCommand())
+            time.sleep(ans)
+            speak("Sleep mode off")       
+        elif 'log out' in query:
+            os.system("shutdown -1")
+        elif 'restart' in query:
+            os.system("shutdown /r /t 1")
+        elif 'shutdown' in query:
+            os.system("shutdown /s /t 1")
+
         query = takeCommand().lower()
         
