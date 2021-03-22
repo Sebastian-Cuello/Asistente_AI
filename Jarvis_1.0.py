@@ -2,7 +2,7 @@
 # libespeak1, pyaudio
 
 # For Python 3 
-# Pip install pyttsx3, speech_recognition, wikipedia, psutil, pyjokes, pyautogui.
+# Pip install pyttsx3, speech_recognition, wikipedia, psutil, pyjokes, pyautogui, wolframalpha.
 # Pip pyinstaller is to create an app. command (pyinstaller --onefile "name of app")
 
 import pyttsx3
